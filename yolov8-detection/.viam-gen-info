@@ -1,0 +1,13 @@
+{
+  "module_name": "yolov8-detection",
+  "namespace": "rig-guardian",
+  "language": "python",
+  "resource_type": "service",
+  "resource_subtype": "vision",
+  "model_name": "yolov8-detection",
+  "enable_cloud_build": false,
+  "initialize_git": false,
+  "generator_version": "0.1.0",
+  "generated_on": "2025-08-06T16:40:24.130764897Z",
+  "module_readme_link": "README.md"
+}

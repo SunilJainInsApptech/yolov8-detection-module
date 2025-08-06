@@ -1,0 +1,7 @@
+viam-sdk
+ultralytics
+torch
+torchvision
+pillow
+numpy
+opencv-python
