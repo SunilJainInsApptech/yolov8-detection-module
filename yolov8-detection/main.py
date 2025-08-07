@@ -59,18 +59,11 @@ async def main():
         print("   ✓ Module created successfully")
         
         print("   🔧 Registering YOLOv8 detection service...")
-        print(f"   📋 Vision SUBTYPE: {Vision.SUBTYPE}")
         print(f"   🏷️  Service MODEL: {YOLOv8DetectionService.MODEL}")
+        print(f"   📝 Model name: {YOLOv8DetectionService.MODEL.name}")
         
-        # Try the new registration method
-        Registry.register_resource_creator(
-            Vision.SUBTYPE,
-            YOLOv8DetectionService.MODEL,
-            ResourceCreatorRegistration(
-                YOLOv8DetectionService.new,
-                YOLOv8DetectionService.validate_config
-            )
-        )
+        print("   🔧 Attempting module registration...")
+        module.add_model_from_registry(YOLOv8DetectionService.MODEL, YOLOv8DetectionService)
         print("   ✓ Service registered successfully")
         
         print("\n🚀 Starting module...")
