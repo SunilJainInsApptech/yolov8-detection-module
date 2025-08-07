@@ -10,32 +10,61 @@ from typing import ClassVar, Mapping, Any, Optional, List, cast
 from typing_extensions import Self
 from urllib.request import urlretrieve
 
-from viam.proto.common import PointCloudObject
-from viam.proto.service.vision import Classification, Detection
-from viam.utils import ValueTypes
+print("🔍 Loading YOLOv8DetectionService imports...")
 
-from viam.proto.app.robot import ComponentConfig
-from viam.proto.common import ResourceName
-from viam.resource.base import ResourceBase
-from viam.resource.easy_resource import EasyResource
-from viam.resource.types import Model, ModelFamily
-from viam.services.vision import Vision, CaptureAllResult
-from viam.proto.service.vision import GetPropertiesResponse
-from viam.components.camera import Camera, ViamImage
-from viam.media.utils.pil import viam_to_pil_image
-from viam.logging import getLogger
-from viam.utils import struct_to_dict
-
-from ultralytics.engine.results import Results
-from ultralytics import YOLO
-import torch
-import numpy as np
+try:
+    from viam.proto.common import PointCloudObject
+    print("   ✓ PointCloudObject imported")
+    from viam.proto.service.vision import Classification, Detection
+    print("   ✓ Classification, Detection imported")
+    from viam.utils import ValueTypes
+    print("   ✓ ValueTypes imported")
+    
+    from viam.proto.app.robot import ComponentConfig
+    print("   ✓ ComponentConfig imported")
+    from viam.proto.common import ResourceName
+    print("   ✓ ResourceName imported")
+    from viam.resource.base import ResourceBase
+    print("   ✓ ResourceBase imported")
+    from viam.resource.easy_resource import EasyResource
+    print("   ✓ EasyResource imported")
+    from viam.resource.types import Model, ModelFamily
+    print("   ✓ Model, ModelFamily imported")
+    from viam.services.vision import Vision, CaptureAllResult
+    print("   ✓ Vision, CaptureAllResult imported")
+    from viam.proto.service.vision import GetPropertiesResponse
+    print("   ✓ GetPropertiesResponse imported")
+    from viam.components.camera import Camera, ViamImage
+    print("   ✓ Camera, ViamImage imported")
+    from viam.media.utils.pil import viam_to_pil_image
+    print("   ✓ viam_to_pil_image imported")
+    from viam.logging import getLogger
+    print("   ✓ getLogger imported")
+    from viam.utils import struct_to_dict
+    print("   ✓ struct_to_dict imported")
+    
+    from ultralytics.engine.results import Results
+    print("   ✓ Results imported")
+    from ultralytics import YOLO
+    print("   ✓ YOLO imported")
+    import torch
+    print("   ✓ torch imported")
+    import numpy as np
+    print("   ✓ numpy imported")
+    
+except Exception as e:
+    print(f"   ❌ Import error: {e}")
+    import traceback
+    traceback.print_exc()
+    raise
 
 LOGGER = getLogger(__name__)
 
 MODEL_DIR = os.environ.get(
     "VIAM_MODULE_DATA", os.path.join(os.path.expanduser("~"), ".data", "models")
 )
+
+print(f"📁 MODEL_DIR: {MODEL_DIR}")
 
 class YOLOv8DetectionService(Vision, EasyResource):
     """
@@ -46,6 +75,10 @@ class YOLOv8DetectionService(Vision, EasyResource):
         ModelFamily("rig-guardian", "yolov8-detection"), 
         "yolov8-detection"
     )
+
+    print(f"🏷️  Defining MODEL: {MODEL}")
+    print(f"   📋 Model family: {MODEL.model_family}")
+    print(f"   📝 Model name: {MODEL.model_name}")
 
     MODEL_FILE = ""
     MODEL_REPO = ""
@@ -60,72 +93,103 @@ class YOLOv8DetectionService(Vision, EasyResource):
         cls, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]
     ) -> Self:
         """Create new YOLOv8 detection service instance"""
-        LOGGER.info("Creating YOLOv8 detection service instance")
+        LOGGER.info("🏗️  Creating YOLOv8 detection service instance")
+        print("🏗️  YOLOv8DetectionService.new() called")
+        print(f"   📋 Config: {config}")
+        print(f"   🔗 Dependencies: {dependencies}")
         try:
             result = super().new(config, dependencies)
-            LOGGER.info("YOLOv8 detection service created successfully")
+            LOGGER.info("✅ YOLOv8 detection service created successfully")
+            print("✅ YOLOv8 detection service created successfully")
             return result
         except Exception as e:
-            LOGGER.error(f"Failed to create YOLOv8 detection service: {e}")
+            LOGGER.error(f"❌ Failed to create YOLOv8 detection service: {e}")
+            print(f"❌ Failed to create YOLOv8 detection service: {e}")
+            import traceback
+            traceback.print_exc()
             raise
 
     @classmethod
     def validate_config(cls, config: ComponentConfig):
         """Validate configuration"""
-        LOGGER.info("Validating YOLOv8 detection service config")
+        LOGGER.info("🔍 Validating YOLOv8 detection service config")
+        print("🔍 YOLOv8DetectionService.validate_config() called")
+        print(f"   📋 Config: {config}")
+        print(f"   📋 Config attributes: {config.attributes}")
         try:
             attrs = struct_to_dict(config.attributes)
+            print(f"   📊 Parsed attributes: {attrs}")
             model_location = attrs.get("model_location")
+            print(f"   📁 Model location: {model_location}")
             if not model_location:
                 raise Exception("A model_location must be defined")
-            LOGGER.info(f"Config validation successful for model: {model_location}")
+            LOGGER.info(f"✅ Config validation successful for model: {model_location}")
+            print(f"✅ Config validation successful for model: {model_location}")
             return []
         except Exception as e:
-            LOGGER.error(f"Config validation failed: {e}")
+            LOGGER.error(f"❌ Config validation failed: {e}")
+            print(f"❌ Config validation failed: {e}")
+            import traceback
+            traceback.print_exc()
             raise e
 
     def reconfigure(
         self, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]
     ):
         """Configure the YOLOv8 detection service"""
-        LOGGER.info("Reconfiguring YOLOv8 detection service")
+        LOGGER.info("🔧 Reconfiguring YOLOv8 detection service")
+        print("🔧 YOLOv8DetectionService.reconfigure() called")
         
         attrs = struct_to_dict(config.attributes)
         model_location = str(attrs.get("model_location"))
         self.confidence_threshold = float(attrs.get("confidence_threshold", 0.5))
         
-        LOGGER.info(f"Model location: {model_location}")
-        LOGGER.info(f"Confidence threshold: {self.confidence_threshold}")
+        LOGGER.info(f"📁 Model location: {model_location}")
+        LOGGER.info(f"🎯 Confidence threshold: {self.confidence_threshold}")
+        print(f"📁 Model location: {model_location}")
+        print(f"🎯 Confidence threshold: {self.confidence_threshold}")
         
         self.DEPS = dependencies
         self.task = str(attrs.get("task")) or None
 
         # Set up device
+        print("🔍 Detecting compute device...")
         if torch.cuda.is_available():
             self.device = "cuda"
             LOGGER.info("✅ CUDA detected - using GPU acceleration")
+            print("✅ CUDA detected - using GPU acceleration")
         elif hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
             self.device = "mps"
             LOGGER.info("✅ MPS detected - using Apple Silicon acceleration")
+            print("✅ MPS detected - using Apple Silicon acceleration")
         else:
             self.device = "cpu"
             LOGGER.info("⚠️ Using CPU - consider GPU for better performance")
+            print("⚠️ Using CPU - consider GPU for better performance")
 
         # Load YOLOv8 model
+        print(f"📥 Loading YOLOv8 model from: {model_location}")
         try:
             if os.path.exists(model_location):
-                LOGGER.info(f"Loading model from local path: {model_location}")
+                LOGGER.info(f"📁 Loading model from local path: {model_location}")
+                print(f"📁 Loading model from local path: {model_location}")
                 self.model = YOLO(model_location)
             else:
-                LOGGER.info(f"Downloading model from Ultralytics Hub: {model_location}")
+                LOGGER.info(f"🌐 Downloading model from Ultralytics Hub: {model_location}")
+                print(f"🌐 Downloading model from Ultralytics Hub: {model_location}")
                 self.model = YOLO(model_location)
             
             # Move model to device
+            print(f"🚀 Moving model to device: {self.device}")
             self.model.to(self.device)
             LOGGER.info(f"✅ YOLOv8 model loaded successfully on {self.device}")
+            print(f"✅ YOLOv8 model loaded successfully on {self.device}")
             
         except Exception as e:
             LOGGER.error(f"❌ Failed to load YOLOv8 model: {e}")
+            print(f"❌ Failed to load YOLOv8 model: {e}")
+            import traceback
+            traceback.print_exc()
             raise Exception(f"Model loading failed: {e}")
 
     async def get_detections(
