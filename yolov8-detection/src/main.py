@@ -19,7 +19,6 @@ from viam.proto.common import ResourceName
 from viam.resource.base import ResourceBase
 from viam.resource.easy_resource import EasyResource
 from viam.resource.types import Model, ModelFamily
-
 from viam.services.vision import Vision, CaptureAllResult
 from viam.proto.service.vision import GetPropertiesResponse
 from viam.components.camera import Camera, ViamImage
@@ -44,7 +43,8 @@ class YOLOv8DetectionService(Vision, EasyResource):
     """
         
     MODEL: ClassVar[Model] = Model(
-        ModelFamily("rig-guardian", "yolov8-detection"), "yolov8-detection"
+        ModelFamily("rig-guardian", "yolov8-detection"), 
+        "yolov8-detection"
     )
 
     MODEL_FILE = ""
