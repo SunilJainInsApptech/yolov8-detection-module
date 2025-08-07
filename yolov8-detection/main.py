@@ -42,7 +42,8 @@ try:
     print(f"   📊 YOLOv8DetectionService class: {YOLOv8DetectionService}")
     print(f"   🏷️  Model definition: {YOLOv8DetectionService.MODEL}")
     print(f"   🔧 Model family: {YOLOv8DetectionService.MODEL.model_family}")
-    print(f"   📝 Model name: {YOLOv8DetectionService.MODEL.model_name}")
+    print(f"   📝 Model repr: {repr(YOLOv8DetectionService.MODEL)}")
+    print(f"   🔍 Model attributes: {dir(YOLOv8DetectionService.MODEL)}")
     
 except Exception as e:
     print(f"   ❌ Import failed: {e}")

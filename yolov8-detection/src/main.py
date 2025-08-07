@@ -78,7 +78,8 @@ class YOLOv8DetectionService(Vision, EasyResource):
 
     print(f"🏷️  Defining MODEL: {MODEL}")
     print(f"   📋 Model family: {MODEL.model_family}")
-    print(f"   📝 Model name: {MODEL.model_name}")
+    print(f"   📝 Model repr: {repr(MODEL)}")
+    print(f"   🔍 Model dir: {dir(MODEL)}")
 
     MODEL_FILE = ""
     MODEL_REPO = ""
