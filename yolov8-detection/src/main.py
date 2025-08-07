@@ -44,7 +44,7 @@ class YOLOv8DetectionService(Vision, EasyResource):
     """
         
     MODEL: ClassVar[Model] = Model(
-        ModelFamily("rig-guardian", "yolov8n-pose"), "yolov8n-detection"
+        ModelFamily("rig-guardian", "yolov8-detection"), "yolov8-detection"
     )
 
     MODEL_FILE = ""

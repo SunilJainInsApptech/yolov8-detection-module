@@ -3,6 +3,7 @@
 async def main():
     """Main entry point for the YOLOv8 detection module"""
     from viam.module.module import Module
+    from src.main import YOLOv8DetectionService
     module = Module.from_args()
     module.add_model_from_registry(YOLOv8DetectionService.MODEL, YOLOv8DetectionService)
     await module.start()
