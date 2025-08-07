@@ -11,4 +11,4 @@
 
  # Be sure to use `exec` so that termination signals reach the python process,
  # or handle forwarding termination signals manually
- exec $PYTHON main.py $@
+ exec $PYTHON src/main.py $@
