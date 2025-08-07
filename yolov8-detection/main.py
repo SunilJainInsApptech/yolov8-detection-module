@@ -62,8 +62,17 @@ async def main():
         print(f"   🏷️  Service MODEL: {YOLOv8DetectionService.MODEL}")
         print(f"   📝 Model name: {YOLOv8DetectionService.MODEL.name}")
         
-        print("   🔧 Attempting module registration...")
-        module.add_model_from_registry(YOLOv8DetectionService.MODEL, YOLOv8DetectionService)
+        print("   🔧 Registering with Registry first...")
+        # Register with the registry first
+        Registry.register_resource_creator(
+            Vision.API,
+            YOLOv8DetectionService.MODEL,
+            ResourceCreatorRegistration(YOLOv8DetectionService.new, YOLOv8DetectionService.validate_config)
+        )
+        print("   ✓ Registry registration successful")
+        
+        print("   🔧 Adding model to module...")
+        module.add_model_from_registry(Vision.API, YOLOv8DetectionService.MODEL)
         print("   ✓ Service registered successfully")
         
         print("\n🚀 Starting module...")
