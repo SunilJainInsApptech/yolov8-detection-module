@@ -105,10 +105,23 @@ class YOLOv8DetectionService(Vision, EasyResource):
         self.DEPS = dependencies
         self.task = str(attrs.get("task")) or None
 
+        # Debug CUDA availability
+        LOGGER.info(f"🔍 PyTorch version: {torch.__version__}")
+        LOGGER.info(f"🔍 CUDA available: {torch.cuda.is_available()}")
+        LOGGER.info(f"🔍 CUDA device count: {torch.cuda.device_count()}")
+        
+        # Check if we can force CUDA usage on Jetson
+        force_cuda_jetson = attrs.get("force_cuda_jetson", False)
+        
         # Set up device
         if torch.cuda.is_available():
             self.device = "cuda"
             LOGGER.info("✅ CUDA detected - using GPU acceleration")
+            LOGGER.info(f"🎮 GPU: {torch.cuda.get_device_name(0)}")
+        elif force_cuda_jetson and os.path.exists("/usr/local/cuda"):
+            # Force CUDA on Jetson even if PyTorch doesn't detect it
+            self.device = "cuda"
+            LOGGER.info("🔧 Forcing CUDA on Jetson (PyTorch detection failed)")
         elif hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
             self.device = "mps"
             LOGGER.info("✅ MPS detected - using Apple Silicon acceleration")
