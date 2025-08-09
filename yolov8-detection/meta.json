@@ -14,17 +14,13 @@
   ],
   "applications": null,
   "markdown_link": "README.md",
-  "entrypoint": "reload.sh",
-  "first_run": "",
+  "entrypoint": "start_module.sh",
+  "first_run": "first_run.sh",
   "build": {
-    "build": "rm -f module.tar.gz && tar czf module.tar.gz requirements.txt src/*.py src/models/*.py meta.json setup.sh reload.sh",
-    "setup": "./setup.sh",
+    "build": "rm -f module.tar.gz && tar czf module.tar.gz meta.json first_run.sh start_module.sh",
     "path": "module.tar.gz",
     "arch": [
-      "linux/amd64",
-      "linux/arm64",
-      "darwin/arm64",
-      "windows/amd64"
+      "linux/arm64"
     ]
   }
 }
