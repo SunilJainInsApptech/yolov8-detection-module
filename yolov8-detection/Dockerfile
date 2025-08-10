@@ -4,6 +4,9 @@ FROM nvcr.io/nvidia/pytorch:25.06-py3
 # Set up a working directory
 WORKDIR /app
 
+# Install system dependencies required by OpenCV
+RUN apt-get update && apt-get install -y libgl1-mesa-glx
+
 # By using the NVIDIA container, we assume torch and torchvision are already installed.
 # Your requirements.txt should NOT include torch or torchvision.
 # It should only include things like:
