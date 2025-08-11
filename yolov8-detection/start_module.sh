@@ -11,9 +11,11 @@ SOCKET_PATH="${@: -1}"
 # Debug log: socket path
 echo "[start_module.sh] SOCKET_PATH resolved to: ${SOCKET_PATH}" >> /tmp/yolo_debug.log
 
-# Check if SOCKET_PATH exists and is a socket file
-if [ ! -S "${SOCKET_PATH}" ]; then
-    echo "[start_module.sh] ERROR: SOCKET_PATH ${SOCKET_PATH} does not exist or is not a socket file. Exiting." | tee -a /tmp/yolo_debug.log
+
+# Check if the parent directory of SOCKET_PATH exists
+SOCKET_DIR="$(dirname \"${SOCKET_PATH}\")"
+if [ ! -d "${SOCKET_DIR}" ]; then
+    echo "[start_module.sh] ERROR: Parent directory ${SOCKET_DIR} does not exist. Exiting." | tee -a /tmp/yolo_debug.log
     exit 1
 fi
 
