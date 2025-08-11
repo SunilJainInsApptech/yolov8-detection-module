@@ -38,7 +38,7 @@ def debug_log(msg):
 if __name__ == '__main__':
     debug_log(f"Invoked at {__import__('datetime').datetime.now()} with sys.argv: {sys.argv}")
     parser = argparse.ArgumentParser()
-    parser.add_argument('--socket-path', type=str, default='/tmp/yolov8_module.sock')
+    parser.add_argument('--socket-path', type=str, required=True)
     args = parser.parse_args()
     sock_path = args.socket_path
     debug_log(f"Socket path resolved to: {sock_path}")
