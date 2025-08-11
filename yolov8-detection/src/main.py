@@ -5,8 +5,10 @@ YOLOv8 Detection Module Main Entry Point
 
 import asyncio
 import logging
-
 import os
+import sys
+import argparse
+import signal
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -21,14 +23,14 @@ try:
     from models.yolov8_detection import YOLOv8DetectionService
     logger.info("YOLOv8DetectionService imported successfully.")
 except ModuleNotFoundError:
-    # When running as local module
     from .models.yolov8_detection import YOLOv8DetectionService
     logger.info("YOLOv8DetectionService imported successfully from local module.")
 
-
-import sys
-import argparse
-import signal
+async def main(socket_path: str):
+    """This function creates and starts a new module, after adding all desired resources."""
+    module = Module(socket_path)
+    module.add_model_from_registry(Vision.SUBTYPE, YOLOv8DetectionService.MODEL)
+    await module.start()
 
 def debug_log(msg):
     try:
@@ -39,49 +41,31 @@ def debug_log(msg):
 
 if __name__ == '__main__':
     debug_log(f"Invoked at {__import__('datetime').datetime.now()} with sys.argv: {sys.argv}")
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--socket-path', type=str, required=True)
-    args = parser.parse_args()
-    sock_path = args.socket_path
-    debug_log(f"Socket path resolved to: {sock_path}")
-
-    # Clean up leftover socket file if it exists and is not a directory
-    def cleanup_socket():
-        if os.path.exists(sock_path) and not os.path.isdir(sock_path):
-            try:
-                os.remove(sock_path)
-                logger.info(f"Cleaned up socket file: {sock_path}")
-                debug_log(f"Cleaned up socket file: {sock_path}")
-            except Exception as e:
-                logger.error(f"Failed to clean up socket file {sock_path}: {e}")
-                debug_log(f"Failed to clean up socket file {sock_path}: {e}")
-
-    def handle_signal(signum, frame):
-        logger.info(f"Received signal {signum}, cleaning up and exiting.")
-        debug_log(f"Received signal {signum}, cleaning up and exiting.")
-        cleanup_socket()
-        sys.exit(0)
-
-    # Register signal handlers for clean shutdown
-    signal.signal(signal.SIGINT, handle_signal)
-    signal.signal(signal.SIGTERM, handle_signal)
+    
+    if len(sys.argv) < 2:
+        raise Exception("Need socket path as command line argument")
+    
+    socket_path = sys.argv[1]
+    debug_log(f"Socket path resolved to: {socket_path}")
 
     # Remove stale socket file at startup
-    if os.path.isdir(sock_path):
-        logger.error(f"Socket path {sock_path} is a directory, not a file. Please remove it.")
-        debug_log(f"Socket path {sock_path} is a directory, not a file. Please remove it.")
+    if os.path.isdir(socket_path):
+        logger.error(f"Socket path {socket_path} is a directory, not a file. Please remove it.")
+        debug_log(f"Socket path {socket_path} is a directory, not a file. Please remove it.")
         sys.exit(1)
-    elif os.path.exists(sock_path):
-        cleanup_socket()
-    else:
-        debug_log(f"No stale socket file found at: {sock_path}")
+    elif os.path.exists(socket_path):
+        try:
+            os.remove(socket_path)
+            logger.info(f"Cleaned up socket file: {socket_path}")
+            debug_log(f"Cleaned up socket file: {socket_path}")
+        except Exception as e:
+            logger.error(f"Failed to clean up socket file {socket_path}: {e}")
+            debug_log(f"Failed to clean up socket file {socket_path}: {e}")
 
-    debug_log("About to start Module.run_from_registry()")
+    debug_log("About to start module")
     try:
-        # Pass the socket path to the Viam SDK if supported (future-proof)
-        asyncio.run(Module.run_from_registry())
-        debug_log("Module.run_from_registry() exited cleanly")
+        asyncio.run(main(socket_path))
+        debug_log("Module exited cleanly")
     except Exception as e:
-        debug_log(f"Exception in Module.run_from_registry(): {e}")
-        cleanup_socket()
+        debug_log(f"Exception in module: {e}")
         raise
