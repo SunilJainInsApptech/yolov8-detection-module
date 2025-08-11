@@ -56,7 +56,7 @@ if __name__ == '__main__':
     debug_log("About to start Module.run_from_registry()")
     try:
         # Pass the socket path to the Viam SDK if supported
-        asyncio.run(Module.run_from_registry(socket_path=sock_path))
+        asyncio.run(Module.run_from_registry())
         debug_log("Module.run_from_registry() exited cleanly")
     except Exception as e:
         debug_log(f"Exception in Module.run_from_registry(): {e}")
