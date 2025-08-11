@@ -26,4 +26,4 @@ exec docker run \
     --ipc=host \
     -v "${SOCKET_DIR}:${CONTAINER_SOCKET_DIR}" \
     sjainapptech/yolov8-detection-module:latest \
-    /usr/bin/python3 /app/src/main.py "${CONTAINER_SOCKET_PATH}"
+    /usr/bin/python3 /app/src/main.py "/tmp/socket_dir/$(basename "${SOCKET_PATH}")"
