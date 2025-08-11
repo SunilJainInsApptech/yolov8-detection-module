@@ -25,8 +25,10 @@ except ModuleNotFoundError:
     from .models.yolov8_detection import YOLOv8DetectionService
     logger.info("YOLOv8DetectionService imported successfully from local module.")
 
+
 import sys
 import argparse
+import signal
 
 def debug_log(msg):
     try:
@@ -42,25 +44,44 @@ if __name__ == '__main__':
     args = parser.parse_args()
     sock_path = args.socket_path
     debug_log(f"Socket path resolved to: {sock_path}")
+
     # Clean up leftover socket file if it exists and is not a directory
+    def cleanup_socket():
+        if os.path.exists(sock_path) and not os.path.isdir(sock_path):
+            try:
+                os.remove(sock_path)
+                logger.info(f"Cleaned up socket file: {sock_path}")
+                debug_log(f"Cleaned up socket file: {sock_path}")
+            except Exception as e:
+                logger.error(f"Failed to clean up socket file {sock_path}: {e}")
+                debug_log(f"Failed to clean up socket file {sock_path}: {e}")
+
+    def handle_signal(signum, frame):
+        logger.info(f"Received signal {signum}, cleaning up and exiting.")
+        debug_log(f"Received signal {signum}, cleaning up and exiting.")
+        cleanup_socket()
+        sys.exit(0)
+
+    # Register signal handlers for clean shutdown
+    signal.signal(signal.SIGINT, handle_signal)
+    signal.signal(signal.SIGTERM, handle_signal)
+
+    # Remove stale socket file at startup
     if os.path.isdir(sock_path):
         logger.error(f"Socket path {sock_path} is a directory, not a file. Please remove it.")
         debug_log(f"Socket path {sock_path} is a directory, not a file. Please remove it.")
+        sys.exit(1)
     elif os.path.exists(sock_path):
-        try:
-            os.remove(sock_path)
-            logger.info(f"Removed stale socket file: {sock_path}")
-            debug_log(f"Removed stale socket file: {sock_path}")
-        except Exception as e:
-            logger.error(f"Failed to remove stale socket file {sock_path}: {e}")
-            debug_log(f"Failed to remove stale socket file {sock_path}: {e}")
+        cleanup_socket()
     else:
         debug_log(f"No stale socket file found at: {sock_path}")
+
     debug_log("About to start Module.run_from_registry()")
     try:
-        # Pass the socket path to the Viam SDK if supported
+        # Pass the socket path to the Viam SDK if supported (future-proof)
         asyncio.run(Module.run_from_registry())
         debug_log("Module.run_from_registry() exited cleanly")
     except Exception as e:
         debug_log(f"Exception in Module.run_from_registry(): {e}")
+        cleanup_socket()
         raise
