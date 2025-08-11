@@ -29,7 +29,7 @@ except ModuleNotFoundError:
 async def main(socket_path: str):
     """This function creates and starts a new module, after adding all desired resources."""
     module = Module(socket_path)
-    module.add_model_from_registry(Vision.SUBTYPE, YOLOv8DetectionService.MODEL)
+    module.add_model_from_registry(Vision.API, YOLOv8DetectionService.MODEL)
     await module.start()
 
 def debug_log(msg):
