@@ -42,8 +42,11 @@ if __name__ == '__main__':
     args = parser.parse_args()
     sock_path = args.socket_path
     debug_log(f"Socket path resolved to: {sock_path}")
-    # Clean up leftover socket file if it exists
-    if os.path.exists(sock_path):
+    # Clean up leftover socket file if it exists and is not a directory
+    if os.path.isdir(sock_path):
+        logger.error(f"Socket path {sock_path} is a directory, not a file. Please remove it.")
+        debug_log(f"Socket path {sock_path} is a directory, not a file. Please remove it.")
+    elif os.path.exists(sock_path):
         try:
             os.remove(sock_path)
             logger.info(f"Removed stale socket file: {sock_path}")
