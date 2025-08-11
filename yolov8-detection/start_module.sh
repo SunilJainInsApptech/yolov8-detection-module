@@ -14,10 +14,10 @@ SOCKET_PATH="${@: -1}"
 # The final part is the image name and the command to run inside it, passing the socket path.
 exec docker run \
     --rm \
-    --gpus all \
     --ipc=host \
     --ulimit memlock=-1 \
     --ulimit stack=67108864 \
+    --runtime=nvidia \
     -v ${SOCKET_PATH}:/tmp/module.sock \
     sjainapptech/yolov8-detection-module:latest \
     /usr/bin/python3 /app/src/main.py --socket-path /tmp/module.sock
