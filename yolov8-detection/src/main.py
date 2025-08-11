@@ -25,9 +25,15 @@ except ModuleNotFoundError:
     from .models.yolov8_detection import YOLOv8DetectionService
     logger.info("YOLOv8DetectionService imported successfully from local module.")
 
+import sys
+import argparse
+
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--socket-path', type=str, default='/tmp/yolov8_module.sock')
+    args = parser.parse_args()
+    sock_path = args.socket_path
     # Clean up leftover socket file if it exists
-    sock_path = '/tmp/module.sock'
     if os.path.exists(sock_path):
         try:
             os.remove(sock_path)
