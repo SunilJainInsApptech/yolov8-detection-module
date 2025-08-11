@@ -18,7 +18,6 @@ exec docker run \
     --ipc=host \
     --ulimit memlock=-1 \
     --ulimit stack=67108864 \
-    --runtime=nvidia \
     -v ${SOCKET_PATH}:/tmp/module.sock \
     sjainapptech/yolov8-detection-module:latest \
     /usr/bin/python3 /app/src/main.py --socket-path /tmp/module.sock
