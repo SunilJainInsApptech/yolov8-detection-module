@@ -7,7 +7,7 @@ import asyncio
 import logging
 import os
 import sys
-import argparse
+import argparse  # no longer used, but kept for reference
 import signal
 
 # Set up logging
@@ -41,10 +41,8 @@ def debug_log(msg):
 
 if __name__ == '__main__':
     debug_log(f"Invoked at {__import__('datetime').datetime.now()} with sys.argv: {sys.argv}")
-    
     if len(sys.argv) < 2:
         raise Exception("Need socket path as command line argument")
-    
     socket_path = sys.argv[1]
     debug_log(f"Socket path resolved to: {socket_path}")
 

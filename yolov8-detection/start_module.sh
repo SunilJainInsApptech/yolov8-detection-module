@@ -29,4 +29,4 @@ exec docker run \
     --ipc=host \
     -v ${SOCKET_PATH}:/tmp/yolov8_module.sock \
     sjainapptech/yolov8-detection-module:latest \
-    /usr/bin/python3 /app/src/main.py --socket-path /tmp/yolov8_module.sock
+    /usr/bin/python3 /app/src/main.py /tmp/yolov8_module.sock
