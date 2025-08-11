@@ -11,6 +11,12 @@ SOCKET_PATH="${@: -1}"
 # Debug log: socket path
 echo "[start_module.sh] SOCKET_PATH resolved to: ${SOCKET_PATH}" >> /tmp/yolo_debug.log
 
+# Check if SOCKET_PATH exists and is a socket file
+if [ ! -S "${SOCKET_PATH}" ]; then
+    echo "[start_module.sh] ERROR: SOCKET_PATH ${SOCKET_PATH} does not exist or is not a socket file. Exiting." | tee -a /tmp/yolo_debug.log
+    exit 1
+fi
+
 # Run the docker container without GPU for initial testing
 # --rm: Automatically remove the container when it exits.
 # --ipc=host: Use the host's shared memory.
