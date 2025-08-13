@@ -1,7 +1,6 @@
-# Copy the YOLOv8 model file into the image
-COPY /home/sunil/yolov8n-pose.pt /app/yolov8n-pose.pt
-
 FROM nvcr.io/nvidia/pytorch:25.06-py3
+# Copy the YOLOv8 model file into the image (ensure yolov8n-pose.pt is in the build context)
+COPY yolov8n-pose.pt /app/yolov8n-pose.pt
 ENV PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:128
 ENV CUDA_LAUNCH_BLOCKING=1
 ENV TORCH_USE_CUDA_DSA=1
