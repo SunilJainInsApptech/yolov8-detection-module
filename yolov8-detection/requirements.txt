@@ -1,5 +1,5 @@
 viam-sdk
-ultralytics
+ultralytics==8.0.196
 pillow
 numpy<2.0
 opencv-python-headless
