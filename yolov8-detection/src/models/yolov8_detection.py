@@ -30,6 +30,18 @@ from viam.utils import struct_to_dict
 from ultralytics.engine.results import Results
 from ultralytics import YOLO
 import torch
+
+# Allow Ultralytics custom classes for torch.load security in PyTorch 2.6+
+try:
+    import torch.serialization
+    torch.serialization.add_safe_globals([
+        'ultralytics.nn.tasks.PoseModel',
+        'ultralytics.nn.modules.block.C2f',
+        'ultralytics.nn.modules.conv.Conv',
+        # Add other Ultralytics classes as needed
+    ])
+except Exception as e:
+    pass  # Safe to ignore if not needed for current torch version
 import numpy as np
 
 LOGGER = getLogger(__name__)
