@@ -149,13 +149,14 @@ class YOLOv8DetectionService(Vision, EasyResource):
             self.device = "cpu"
             LOGGER.info("⚠️ Using CPU - consider GPU for better performance")
 
-        # Load YOLOv8 model using torch.load with weights_only=False
+        # Load YOLOv8 model using Ultralytics loader (handles state_dict and full models)
         try:
             if os.path.exists(model_location):
-                LOGGER.info(f"📁 Loading model from local path: {model_location} with torch.load(weights_only=False)")
-                self.model = torch.load(model_location, weights_only=False)
+                LOGGER.info(f"📁 Loading model from local path: {model_location} with Ultralytics YOLO loader")
+                self.model = YOLO(model_location, task=self.task)
             else:
-                raise Exception(f"Model file not found: {model_location}")
+                LOGGER.info(f"🌐 Downloading model from Ultralytics Hub: {model_location}")
+                self.model = YOLO(model_location, task=self.task)
             self.model.to(self.device)
             LOGGER.info(f"✅ YOLOv8 model loaded successfully on {self.device}")
         except Exception as e:
@@ -175,34 +176,39 @@ class YOLOv8DetectionService(Vision, EasyResource):
         try:
             # Convert Viam image to PIL
             pil_image = viam_to_pil_image(image)
-            import torchvision.transforms as T
-            transform = T.Compose([
-                T.ToTensor(),
-            ])
-            input_tensor = transform(pil_image).unsqueeze(0).to(self.device)
-            with torch.no_grad():
-                outputs = self.model(input_tensor)[0]  # Assume model returns a tuple/list
-            # NOTE: The following is a placeholder for postprocessing. You must adapt this to your model's output format.
+            # Run YOLOv8 detection
+            results = self.model(pil_image, conf=self.confidence_threshold, device=self.device)
             detections = []
-            # Example: outputs['boxes'], outputs['scores'], outputs['labels']
-            if hasattr(outputs, 'boxes'):
-                boxes = outputs.boxes.cpu().numpy()
-                scores = outputs.scores.cpu().numpy() if hasattr(outputs, 'scores') else None
-                labels = outputs.labels.cpu().numpy() if hasattr(outputs, 'labels') else None
-                for i, box in enumerate(boxes):
-                    x1, y1, x2, y2 = box[:4]
-                    conf = float(scores[i]) if scores is not None else 1.0
-                    cls = int(labels[i]) if labels is not None else 0
-                    detection = Detection(
-                        x_min=int(x1),
-                        y_min=int(y1),
-                        x_max=int(x2),
-                        y_max=int(y2),
-                        confidence=conf,
-                        class_name=str(cls)
-                    )
-                    detections.append(detection)
-            LOGGER.info(f"✅ Detected {len(detections)} objects (torch.load direct)")
+            for result in results:
+                if result.boxes is not None:
+                    boxes = result.boxes.cpu().numpy()
+                    # Get keypoints if available (YOLOv8-pose)
+                    keypoints = None
+                    if hasattr(result, 'keypoints') and result.keypoints is not None:
+                        keypoints = result.keypoints.cpu().numpy()
+                    for i, box in enumerate(boxes.data):
+                        # Parse bounding box
+                        x1, y1, x2, y2, conf, cls = box[:6]
+                        # Get keypoints for this detection if available
+                        detection_keypoints = []
+                        if keypoints is not None and i < len(keypoints.data):
+                            kpts = keypoints.data[i]  # Shape: (17, 3) for COCO pose
+                            detection_keypoints = kpts.tolist()
+                        # Create detection object
+                        detection = Detection(
+                            x_min=int(x1),
+                            y_min=int(y1),
+                            x_max=int(x2),
+                            y_max=int(y2),
+                            confidence=float(conf),
+                            class_name=self.model.names[int(cls)]
+                        )
+                        # Store keypoints in detection if available
+                        if detection_keypoints:
+                            # Add keypoints as extra metadata
+                            setattr(detection, 'keypoints', detection_keypoints)
+                        detections.append(detection)
+            LOGGER.info(f"✅ Detected {len(detections)} objects")
             return detections
         except Exception as e:
             LOGGER.error(f"❌ Detection failed: {e}")
