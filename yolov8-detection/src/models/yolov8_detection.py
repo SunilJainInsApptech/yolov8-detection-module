@@ -34,14 +34,16 @@ import torch
 from ultralytics.nn.tasks import PoseModel
 from ultralytics.nn.modules.block import C2f
 from ultralytics.nn.modules.conv import Conv
-# Allow Ultralytics custom classes for torch.load security in PyTorch 2.6+
+import torch.nn.modules.container as container
+# Allow Ultralytics and torch custom classes for torch.load security in PyTorch 2.6+
 try:
     import torch.serialization
     torch.serialization.add_safe_globals([
         PoseModel,
         C2f,
         Conv,
-        # Add other Ultralytics classes as needed
+        container.Sequential,
+        # Add other Ultralytics/torch classes as needed
     ])
 except Exception as e:
     pass  # Safe to ignore if not needed for current torch version
