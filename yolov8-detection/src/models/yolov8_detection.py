@@ -354,3 +354,8 @@ class YOLOv8DetectionService(Vision, EasyResource):
         else:
             return {"error": f"Unknown command: {cmd}"}
 
+if not torch.cuda.is_available():
+    raise RuntimeError("CUDA GPU not available! Exiting.")
+
+device = "cuda"
+

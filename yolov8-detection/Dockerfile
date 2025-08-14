@@ -4,10 +4,8 @@ COPY yolov8n-pose.pt /app/yolov8n-pose.pt
 ENV PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:128
 ENV CUDA_LAUNCH_BLOCKING=1
 ENV TORCH_USE_CUDA_DSA=1
-
-# Debugging: Enable CUDA kernel error reporting and CUDA DSA
-ENV CUDA_LAUNCH_BLOCKING=1
-ENV TORCH_USE_CUDA_DSA=1
+ENV OMP_NUM_THREADS=1
+ENV MKL_NUM_THREADS=1
 
 # Set up a working directory
 WORKDIR /app
